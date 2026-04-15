@@ -2,16 +2,27 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import ProductPurchasePanel from '@/components/ProductPurchasePanel'
-import { getProduct, getImageUrl } from '@/lib/supabase'
+import { getProduct, getProducts, getImageUrl } from '@/lib/supabase'
 import { absoluteUrl, createPageMetadata } from '@/lib/seo'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 1800
 
 async function loadProduct(id) {
   try {
     return await getProduct(id)
   } catch (err) {
     return null
+  }
+}
+
+export async function generateStaticParams() {
+  try {
+    const products = await getProducts()
+    return products.map((product) => ({
+      id: String(product.id),
+    }))
+  } catch (err) {
+    return []
   }
 }
 

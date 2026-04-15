@@ -1,25 +1,50 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import ProductCard from '@/components/ProductCard'
 
 const CATEGORIES = ['All', 'Backpacks', 'Handbags', 'Tote Bags', 'Travel Bags', 'Wallets', 'Kids Bags']
 
-export default function ProductsPageClient({ products, activeCategory }) {
+function normalizeCategory(value) {
+  if (!value || !CATEGORIES.includes(value)) return 'All'
+  return value
+}
+
+function CategoryFromSearchParams({ onCategoryChange }) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    onCategoryChange(normalizeCategory(searchParams.get('category')))
+  }, [onCategoryChange, searchParams])
+
+  return null
+}
+
+export default function ProductsPageClient({ products }) {
+  const [activeCategory, setActiveCategory] = useState('All')
   const [search, setSearch] = useState('')
 
   const normalizedSearch = search.trim().toLowerCase()
+  const categoryFilteredProducts =
+    activeCategory === 'All'
+      ? products
+      : products.filter((product) => product.category === activeCategory)
+
   const filteredProducts = normalizedSearch
-    ? products.filter((product) => {
+    ? categoryFilteredProducts.filter((product) => {
         return [product.name, product.description, product.category]
           .filter(Boolean)
           .some((value) => value.toLowerCase().includes(normalizedSearch))
       })
-    : products
+    : categoryFilteredProducts
 
   return (
     <div className="min-h-screen bg-cream">
+      <Suspense fallback={null}>
+        <CategoryFromSearchParams onCategoryChange={setActiveCategory} />
+      </Suspense>
       <div className="bg-navy py-14 px-4">
         <div className="max-w-6xl mx-auto">
           <h1 className="font-display text-4xl font-bold text-white gold-underline">

@@ -19,7 +19,7 @@ const STATS = [
   { value: '50+', label: 'Bag Categories' },
 ]
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 1800
 
 export const metadata = createPageMetadata({
   title: 'Wholesale Bags in Nepal',
