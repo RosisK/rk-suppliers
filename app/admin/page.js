@@ -7,7 +7,7 @@ import pb, { getImageUrl } from '@/lib/pocketbase'
 import Image from 'next/image'
 
 const CATEGORIES = ['Backpacks', 'Handbags', 'Tote Bags', 'Travel Bags', 'Wallets', 'Kids Bags', 'Other']
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD
 const EMPTY_FORM = { name: '', description: '', price: '', min_order: '', category: 'Backpacks', stock: '' }
 
 // Order status options with colors
@@ -169,7 +169,7 @@ export default function AdminPage() {
             {loginError && <p className="text-red-500 text-sm mb-3">{loginError}</p>}
             <button type="submit" className="w-full btn-primary py-3">Login</button>
           </form>
-          <p className="text-xs text-navy/30 text-center mt-4">Default: admin123</p>
+          <p className="text-xs text-navy/30 text-center mt-4">Enter the password to login</p>
         </div>
       </div>
     )
