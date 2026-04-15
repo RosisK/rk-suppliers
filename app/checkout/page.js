@@ -1,13 +1,12 @@
 'use client'
 // app/checkout/page.js - Checkout Page
-// Collects customer details and places the order into PocketBase.
+// Collects customer details and places the order into Supabase.
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useCart } from '@/lib/cartContext'
-import pb from '@/lib/pocketbase'
-// import { createPocketBase } from '@/lib/pocketbase'
+import { createOrder } from '@/lib/supabase'
 
 const PAYMENT_METHODS = [
   { value: 'cod', label: 'Cash on Delivery', icon: '💵' },
@@ -55,29 +54,20 @@ export default function CheckoutPage() {
     setErrorMsg('')
 
     try {
-      // const pb = createPocketBase()
-
-      // Save the order to PocketBase
-      // The cart items are stored as a JSON string in the 'items' field
-      const order = await pb.collection('orders').create({
+      const order = await createOrder({
         customer_name: form.customer_name,
         customer_phone: form.customer_phone,
         customer_email: form.customer_email,
         address: `${form.address}, ${form.city}`,
-        items: JSON.stringify(cart),   // store full cart as JSON
+        items: cart,
         total: totalPrice,
         payment_method: form.payment_method,
         notes: form.notes,
         status: 'pending',
       })
-      console.log("Created Order: ", order)
 
-      // Empty the cart now that order is placed
       clearCart()
-
-      // Go to the success page, passing the order ID in the URL
       router.push(`/order-success?id=${order.id}`)
-
     } catch (err) {
       console.error('Order failed:', err)
       setStatus('error')

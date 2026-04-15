@@ -1,10 +1,10 @@
 'use client'
-// app/contact/ContactClient.js - The Contact Page
-// Has a contact form that saves messages to PocketBase.
+// app/contact/page.js - The Contact Page
+// Has a contact form that saves messages to Supabase.
 
 import { use } from 'react'
 import { useState } from 'react'
-import { submitContact } from '@/lib/pocketbase'
+import { submitContact } from '@/lib/supabase'
 
 export default function ContactPage({ searchParams }) {
   // const searchParams = useSearchParams()

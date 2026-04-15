@@ -1,14 +1,12 @@
-
 import Link from 'next/link'
 
-export default function OrderSuccessPage({ searchParams }) {
-  // const searchParams = useSearchParams()
-  const orderId = searchParams.id
+export default async function OrderSuccessPage({ searchParams }) {
+  const params = await searchParams
+  const orderId = params?.id
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-4">
       <div className="text-center max-w-md w-full">
-
         <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
           <svg className="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />

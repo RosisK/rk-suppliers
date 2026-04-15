@@ -4,12 +4,12 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { getImageUrl } from '@/lib/pocketbase'
+import { getImageUrl } from '@/lib/supabase'
 import { useCart } from '@/lib/cartContext'
 import { useState } from 'react'
 
 export default function ProductCard({ product }) {
-  const imageUrl = product.image ? getImageUrl(product, product.image) : null
+  const imageUrl = getImageUrl(product)
   const { addToCart } = useCart()
   const [added, setAdded] = useState(false)
 

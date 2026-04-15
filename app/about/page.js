@@ -1,6 +1,14 @@
 // app/about/page.js - The About Us Page
 
 import Link from 'next/link'
+import { createPageMetadata } from '@/lib/seo'
+
+export const metadata = createPageMetadata({
+  title: 'About RK Suppliers',
+  description:
+    'Learn about RK Suppliers, our wholesale bag business, and how we serve retailers and resellers across Nepal.',
+  path: '/about',
+})
 
 export default function AboutPage() {
   return (

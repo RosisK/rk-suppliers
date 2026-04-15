@@ -1,165 +1,70 @@
-# RK Suppliers - Bag Wholesale Website
+# RK Suppliers
 
-A beautiful, fully functioning wholesale bag store website built with **Next.js**, **PocketBase**, and **Tailwind CSS**.
+A Next.js wholesale bag store using Supabase for database access and admin authentication.
 
----
+## Stack
 
-## 📁 Project Structure
+- Next.js App Router
+- Supabase Postgres
+- Supabase Auth
+- Tailwind CSS
 
-```
-rk-suppliers/
-├── app/                    # All pages go here (Next.js App Router)
-│   ├── layout.js           # Shared layout with Navbar & Footer
-│   ├── page.js             # Home page
-│   ├── globals.css         # Global styles & Tailwind
-│   ├── products/
-│   │   ├── page.js         # Products listing page
-│   │   └── [id]/page.js    # Single product detail page
-│   ├── about/page.js       # About page
-│   ├── contact/page.js     # Contact page with form
-│   └── admin/page.js       # Admin dashboard (password protected)
-├── components/
-│   ├── Navbar.js           # Top navigation bar
-│   ├── Footer.js           # Footer
-│   └── ProductCard.js      # Reusable product card
-├── lib/
-│   └── pocketbase.js       # Database connection & helper functions
-├── .env.local.example      # Example environment variables
-├── next.config.js          # Next.js configuration
-├── tailwind.config.js      # Tailwind theme (colors, fonts)
-└── package.json
+## Environment Variables
+
+Create `.env.local` with:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_PRODUCT_BUCKET=product-images
+NEXT_PUBLIC_SITE_URL=https://www.example.com
 ```
 
----
+## Supabase Setup
 
-## 🚀 Setup Instructions
+1. Open your Supabase SQL editor.
+2. Run [supabase/schema.sql](/C:/Users/Lenovo/Desktop/rk-suppliers/supabase/schema.sql).
+3. In Supabase Auth, create the admin user you want to use for `/admin`.
+4. Copy that user's `id` from Supabase Auth and insert it into `public.admin_users`.
 
-### Step 1 - Install PocketBase
+Example:
 
-PocketBase is a free, simple database that runs as a single file.
+```sql
+insert into public.admin_users (user_id)
+values ('your-auth-user-uuid');
+```
 
-1. Go to https://pocketbase.io/docs/ and download the binary for your OS
-2. Create a folder and place the `pocketbase` file inside it
-3. Run it:
-   ```bash
-   ./pocketbase serve
-   ```
-4. Open http://127.0.0.1:8090/_/ in your browser
-5. Create your admin account when prompted
+## Data Model
 
-### Step 2 - Create PocketBase Collections
+The app expects these tables:
 
-In the PocketBase Admin UI (http://127.0.0.1:8090/_/), create these collections:
+- `products`
+- `contacts`
+- `orders`
+- `admin_users`
 
-#### Collection 1: `products`
-| Field Name   | Type    | Notes                     |
-|--------------|---------|---------------------------|
-| name         | Text    | Required                  |
-| description  | Text    | Long text                 |
-| price        | Number  | Wholesale price in Rs.    |
-| min_order    | Number  | Minimum order quantity    |
-| category     | Text    | e.g. Backpacks, Handbags  |
-| stock        | Number  | Available quantity        |
-| image        | File    | One image file            |
+Product images are uploaded to the Supabase Storage bucket `product-images`, and the app stores the file path in `products.image_path`.
 
-#### Collection 2: `contacts`
-| Field Name | Type | Notes          |
-|------------|------|----------------|
-| name       | Text | Required       |
-| email      | Text |                |
-| phone      | Text |                |
-| message    | Text | Long text      |
+## Development
 
-**Important:** In PocketBase, set the API Rules for each collection:
-- `products`: List/View = allow everyone (empty rule). Create/Update/Delete = admin only.
-- `contacts`: List/View = admin only. Create = allow everyone (empty rule).
+Install dependencies and run the app:
 
-### Step 3 - Set Up the Next.js Project
-
-1. Unzip the project files
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy the environment file:
-   ```bash
-   cp .env.local.example .env.local
-   ```
-4. Edit `.env.local` if needed (the defaults work for local development)
-
-### Step 4 - Run the Website
-
-Make sure PocketBase is running, then:
 ```bash
+npm install
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser. 🎉
+Open `http://localhost:3000`.
 
----
+## Admin Access
 
-## 🔐 Admin Panel
+Visit `http://localhost:3000/admin` and sign in with your Supabase Auth email/password.
 
-Visit http://localhost:3000/admin
+Admin access is enforced by Supabase RLS policies, not by a client-side password.
 
-Default password: `admin123`
+## Notes
 
-**To change the password:**
-Edit `.env.local` and update `ADMIN_PASSWORD=yourpassword`
-
-> ⚠️ Note: This is a simple password for beginners. For a real production site, you'd use proper authentication.
-
-In the admin panel you can:
-- ➕ Add new products with images
-- ✏️ Edit existing products
-- 🗑️ Delete products
-- 📬 View customer contact messages
-
----
-
-## 🎨 Customization
-
-### Change Business Info
-- **Name, phone, address**: Edit `components/Navbar.js` and `components/Footer.js`
-- **Hero text**: Edit `app/page.js`
-- **About us content**: Edit `app/about/page.js`
-
-### Change Colors
-Edit `tailwind.config.js` - look for the `colors` section:
-```js
-colors: {
-  navy: { DEFAULT: '#0d1b2a', ... },  // Main dark color
-  gold: { DEFAULT: '#c9a96e', ... },  // Accent color
-  cream: { DEFAULT: '#f8f4ef', ... }, // Background
-}
-```
-
-### Add Categories
-Update the `CATEGORIES` array in:
-- `app/page.js` (home page grid)
-- `app/products/page.js` (filter tabs)
-- `app/admin/page.js` (dropdown in form)
-
----
-
-## 🌐 Deploying to the Internet
-
-When you're ready to go live:
-
-1. Deploy PocketBase on a VPS (Digital Ocean, Hetzner, etc.) or use PocketBase Cloud
-2. Update `NEXT_PUBLIC_POCKETBASE_URL` in `.env.local` to your live PocketBase URL
-3. Deploy Next.js on Vercel (free): https://vercel.com
-4. Set your environment variables in Vercel's dashboard
-
----
-
-## 🛠️ Built With
-
-- **Next.js 14** - React framework for the website
-- **PocketBase** - Backend database & file storage
-- **Tailwind CSS** - Styling
-- **Playfair Display + DM Sans** - Google Fonts
-
----
-
-Happy selling! 🛍️
+- Public visitors can read products and submit contacts/orders.
+- Admins can manage products, view contacts, and update order status.
+- Admins can upload and delete product images in Supabase Storage.
+- The public catalog and product pages are server-rendered for SEO.

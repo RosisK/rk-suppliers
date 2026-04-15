@@ -6,7 +6,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/lib/cartContext'
-import { getImageUrl } from '@/lib/pocketbase'
+import { getImageUrl } from '@/lib/supabase'
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQty, totalItems, totalPrice, clearCart } = useCart()
@@ -43,7 +43,7 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-4">
 
             {cart.map((item) => {
-              const imageUrl = item.image ? getImageUrl(item, item.image) : null
+              const imageUrl = getImageUrl(item)
               const minOrder = item.min_order ? parseInt(item.min_order) : 1
 
               return (
@@ -52,7 +52,13 @@ export default function CartPage() {
                   {/* Product thumbnail */}
                   <div className="relative w-20 h-20 bg-cream rounded-sm overflow-hidden flex-shrink-0">
                     {imageUrl ? (
-                      <Image src={imageUrl} alt={item.name} fill className="object-cover" />
+                      <Image
+                        src={imageUrl}
+                        alt={item.name}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-3xl opacity-20">👜</div>
                     )}

@@ -1,23 +1,17 @@
-'use client'
-// app/page.js - The Home Page
-// This is what visitors see when they first visit your website.
-
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import ProductCard from '@/components/ProductCard'
-import { getProducts } from '@/lib/pocketbase'
+import { getProducts } from '@/lib/supabase'
+import { absoluteUrl, createPageMetadata, siteConfig } from '@/lib/seo'
 
-// ── Categories shown in the "Browse by Category" section ──────────
 const CATEGORIES = [
-  { name: 'Backpacks', emoji: '🎒', desc: 'School, travel & laptop bags' },
-  { name: 'Handbags', emoji: '👜', desc: 'Ladies fashion & everyday bags' },
-  { name: 'Tote Bags', emoji: '🛍️', desc: 'Canvas & shopping totes' },
-  { name: 'Travel Bags', emoji: '🧳', desc: 'Duffel, trolley & luggage' },
-  { name: 'Wallets', emoji: '👛', desc: 'Slim, bifold & card holders' },
-  { name: 'Kids Bags', emoji: '🎠', desc: 'Colourful & fun kids range' },
+  { name: 'Backpacks', emoji: '🎒', desc: 'School, travel and laptop bags' },
+  { name: 'Handbags', emoji: '👜', desc: 'Ladies fashion and everyday bags' },
+  { name: 'Tote Bags', emoji: '🛍️', desc: 'Canvas and shopping totes' },
+  { name: 'Travel Bags', emoji: '🧳', desc: 'Duffel, trolley and luggage' },
+  { name: 'Wallets', emoji: '👛', desc: 'Slim, bifold and card holders' },
+  { name: 'Kids Bags', emoji: '🎒', desc: 'Colourful and fun kids range' },
 ]
 
-// ── Stats shown below the hero ────────────────────────────────────
 const STATS = [
   { value: '5+', label: 'Years in Business' },
   { value: '500+', label: 'Products' },
@@ -25,33 +19,72 @@ const STATS = [
   { value: '50+', label: 'Bag Categories' },
 ]
 
-export default function HomePage() {
-  const [featuredProducts, setFeaturedProducts] = useState([])
-  const [loading, setLoading] = useState(true)
+export const dynamic = 'force-dynamic'
 
-  // Load featured products when the page first loads
-  useEffect(() => {
-    async function loadProducts() {
-      try {
-        // Get all products and show first 6 as featured
-        // (Or add a 'featured' boolean field in PocketBase to filter)
-        const products = await getProducts()
-        setFeaturedProducts(products.slice(0, 6))
-      } catch (err) {
-        console.error('Could not load products:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadProducts()
-  }, [])
+export const metadata = createPageMetadata({
+  title: 'Wholesale Bags in Nepal',
+  description:
+    'Buy backpacks, handbags, tote bags, travel bags, wallets, and kids bags at wholesale prices from RK Suppliers.',
+  path: '/',
+  keywords: [
+    'wholesale bags nepal',
+    'bag supplier nepal',
+    'backpack wholesaler',
+    'handbag wholesale',
+    'bulk bag supplier',
+  ],
+})
+
+export default async function HomePage() {
+  let featuredProducts = []
+
+  try {
+    const products = await getProducts()
+    featuredProducts = products.slice(0, 6)
+  } catch (err) {
+    console.error('Could not load products:', err)
+  }
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteConfig.name,
+    url: siteConfig.siteUrl,
+    description: siteConfig.description,
+  }
+
+  const itemListSchema =
+    featuredProducts.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          itemListElement: featuredProducts.map((product, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            url: absoluteUrl(`/products/${product.id}`),
+            name: product.name,
+          })),
+        }
+      : null
 
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteSchema),
+        }}
+      />
+      {itemListSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema),
+          }}
+        />
+      )}
 
-      {/* ── HERO SECTION ─────────────────────────────────────────── */}
       <section className="bg-navy min-h-[90vh] flex items-center relative overflow-hidden">
-        {/* Background pattern */}
         <div
           className="absolute inset-0 opacity-5"
           style={{
@@ -62,25 +95,21 @@ export default function HomePage() {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-24 relative z-10">
           <div className="max-w-2xl">
-            {/* Small tag line */}
             <div className="inline-flex items-center gap-2 bg-gold/10 border border-gold/30 text-gold text-sm px-4 py-2 rounded-full mb-8">
               <span className="w-2 h-2 bg-gold rounded-full animate-pulse" />
-              Nepal's Trusted Bag Wholesaler
+              Nepal&apos;s Trusted Bag Wholesaler
             </div>
 
-            {/* Main headline */}
             <h1 className="font-display text-5xl sm:text-6xl font-bold text-white leading-tight mb-6">
-              Quality Bags,{' '}
-              <span className="text-gold">Wholesale</span>{' '}
-              Prices
+              Quality Bags, <span className="text-gold">Wholesale</span> Prices
             </h1>
 
             <p className="text-cream-dark/70 text-lg leading-relaxed mb-10">
-              From backpacks to handbags - we supply bulk orders to retailers,
-              resellers, and businesses across Nepal. Get the best prices on premium quality bags.
+              From backpacks to handbags, we supply bulk orders to retailers,
+              resellers, and businesses across Nepal. Get the best prices on
+              premium quality bags.
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/products" className="btn-primary text-center text-base py-4 px-8">
                 Browse Products
@@ -93,7 +122,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── STATS BAR ────────────────────────────────────────────── */}
       <section className="bg-gold">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-navy/20">
@@ -107,7 +135,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CATEGORIES SECTION ───────────────────────────────────── */}
       <section className="py-20 bg-cream">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
@@ -123,7 +150,7 @@ export default function HomePage() {
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.name}
-                href={`/products?category=${cat.name}`}
+                href={`/products?category=${encodeURIComponent(cat.name)}`}
                 className="group bg-white rounded-sm p-6 shadow-sm hover:shadow-md hover:border-gold border border-transparent transition-all duration-200"
               >
                 <span className="text-4xl block mb-3">{cat.emoji}</span>
@@ -137,42 +164,35 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── FEATURED PRODUCTS ────────────────────────────────────── */}
       <section className="py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-end justify-between mb-12">
+          <div className="flex items-end justify-between mb-12 gap-4">
             <div>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-navy gold-underline">
                 Featured Products
               </h2>
               <p className="text-navy/60 mt-6">Our most popular wholesale items</p>
             </div>
-            <Link href="/products" className="text-gold hover:text-gold-dark font-medium text-sm hidden sm:block">
-              View All →
+            <Link
+              href="/products"
+              className="text-gold hover:text-gold-dark font-medium text-sm hidden sm:block"
+            >
+              View All -&gt;
             </Link>
           </div>
 
-          {loading ? (
-            // Loading skeleton
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="card h-80 animate-pulse bg-cream" />
-              ))}
-            </div>
-          ) : featuredProducts.length > 0 ? (
+          {featuredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
-            // Shown when PocketBase has no products yet
             <div className="text-center py-20 bg-cream rounded-sm">
               <span className="text-6xl block mb-4">👜</span>
               <p className="text-navy/60 text-lg font-medium">No products yet</p>
               <p className="text-navy/40 text-sm mt-2">
-                Add products in the{' '}
-                <Link href="/admin" className="text-gold underline">Admin panel</Link>
+                Add products in the <Link href="/admin" className="text-gold underline">Admin panel</Link>
               </p>
             </div>
           )}
@@ -183,7 +203,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── WHY CHOOSE US ────────────────────────────────────────── */}
       <section className="py-20 bg-navy">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
@@ -195,23 +214,23 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
               {
-                icon: '💎',
+                icon: 'Quality',
                 title: 'Quality Guaranteed',
                 desc: 'Every bag goes through quality checks before shipment. We only supply products we would use ourselves.',
               },
               {
-                icon: '📦',
+                icon: 'Bulk',
                 title: 'Bulk Order Ready',
                 desc: 'Low minimum order quantities with flexible bulk pricing. The more you buy, the better the price.',
               },
               {
-                icon: '🚚',
+                icon: 'Fast',
                 title: 'Fast Delivery',
                 desc: 'Quick dispatch. We understand your business depends on timely delivery.',
               },
             ].map((item) => (
               <div key={item.title} className="text-center px-4">
-                <span className="text-5xl block mb-5">{item.icon}</span>
+                <span className="text-lg font-semibold text-gold block mb-5">{item.icon}</span>
                 <h3 className="font-display text-xl font-semibold text-white mb-3">{item.title}</h3>
                 <p className="text-cream-dark/60 text-sm leading-relaxed">{item.desc}</p>
               </div>
@@ -220,7 +239,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── CTA BANNER ───────────────────────────────────────────── */}
       <section className="py-20 bg-gold">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-navy mb-4">
