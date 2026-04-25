@@ -6,6 +6,9 @@ import { absoluteUrl, siteConfig } from '@/lib/seo'
 
 export const metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
+  verification: {
+    google: "VDtmeCfmhfvJ-KQYfIGQagLB8RcJAwz-cAq9DwyjlcA",
+  },
   title: {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
